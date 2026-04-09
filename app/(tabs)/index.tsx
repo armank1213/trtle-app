@@ -1,6 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState } from 'react';
 import {
+    Pressable,
     RefreshControl,
     SafeAreaView,
     ScrollView,
@@ -33,11 +34,14 @@ import {
     mockPlants,
     mockPlantTrends,
 } from '@/services/mockData';
+import { sprayPesticide, waterPlant } from '@/services/controlApi';
 import { Plant } from '@/types/plant';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function HomeScreen() {
   const [selectedPlant, setSelectedPlant] = useState<Plant>(mockPlants[0]);
   const [refreshing, setRefreshing] = useState(false);
+  const [activeSection, setActiveSection] = useState<'sensors' | 'trend' | 'detections' | 'camera'>('sensors');
   
   const headerOpacity = useSharedValue(0);
   const contentOpacity = useSharedValue(0);
@@ -66,11 +70,13 @@ export default function HomeScreen() {
     setSelectedPlant(plant);
   };
 
-  const handleWater = () => {
+  const handleWater = async () => {
+    await waterPlant();
     console.log('Watering plant:', selectedPlant.name);
   };
 
-  const handleSpray = () => {
+  const handleSpray = async () => {
+    await sprayPesticide();
     console.log('Spraying pesticide on:', selectedPlant.name);
   };
 
@@ -130,7 +136,10 @@ export default function HomeScreen() {
 
             {/* Metrics Section */}
             <View style={styles.metricsSection}>
-              <Text style={styles.sectionTitle}>Live Sensors</Text>
+              <View style={styles.sectionTitleRow}>
+                <Text style={styles.sectionTitle}>Live Sensors</Text>
+                <Text style={styles.sectionHint}>Real-time</Text>
+              </View>
               <View style={styles.metricsGrid}>
                 <MetricCard type="moisture" value={metrics.soilMoisture} delay={200} />
                 <MetricCard type="temperature" value={metrics.temperature} delay={300} />
@@ -141,25 +150,71 @@ export default function HomeScreen() {
               </View>
             </View>
 
+            <View style={styles.quickNavWrap}>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.quickNavRow}
+              >
+                {[
+                  { id: 'sensors', label: 'Sensors', icon: 'speedometer-outline' as const },
+                  { id: 'trend', label: 'Trend', icon: 'analytics-outline' as const },
+                  { id: 'detections', label: 'Detections', icon: 'scan-circle-outline' as const },
+                  { id: 'camera', label: 'Camera', icon: 'videocam-outline' as const },
+                ].map((item) => {
+                  const selected = activeSection === item.id;
+                  return (
+                    <Pressable
+                      key={item.id}
+                      style={[styles.quickChip, selected && styles.quickChipActive]}
+                      onPress={() => setActiveSection(item.id as typeof activeSection)}
+                    >
+                      <Ionicons
+                        name={item.icon}
+                        size={14}
+                        color={selected ? TrtleColors.white : TrtleColors.primaryDeep}
+                      />
+                      <Text style={[styles.quickChipText, selected && styles.quickChipTextActive]}>
+                        {item.label}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </ScrollView>
+            </View>
+
             {/* Health Trend Chart */}
             <View style={styles.chartSection}>
+              <View style={styles.sectionTitleRow}>
+                <Text style={styles.sectionTitle}>Plant Trend</Text>
+                <Text style={styles.sectionHint}>24h</Text>
+              </View>
               <TrendChart
                 data={trends.healthScore}
-                title="Health Score Trend"
+                title="Health Score"
                 color={TrtleColors.primaryDark}
                 unit="%"
                 delay={600}
+                showHeader={false}
               />
             </View>
 
             {/* Detection Timeline */}
             <View style={styles.timelineSection}>
-              <DetectionTimeline detections={recentDetections} delay={700} />
+              <View style={styles.sectionTitleRow}>
+                <Text style={styles.sectionTitle}>Detections</Text>
+                <Text style={styles.sectionHint}>Latest events</Text>
+              </View>
+              <DetectionTimeline detections={recentDetections} delay={700} showHeader={false} />
             </View>
 
             {/* Camera Feed */}
             <View style={styles.cameraSection}>
-              <CameraFeedCard isLive={true} delay={800} />
+              <View style={styles.sectionTitleRow}>
+                <Text style={styles.sectionTitle}>Camera Feed</Text>
+                <Text style={styles.sectionHint}>Live</Text>
+              </View>
+              <CameraFeedCard isLive={true} delay={800} showHeader={false} />
             </View>
 
             {/* Control Buttons */}
@@ -251,13 +306,59 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '700',
     color: TrtleColors.textDark,
-    marginBottom: 16,
     letterSpacing: -0.3,
+  },
+  sectionTitleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  sectionHint: {
+    backgroundColor: TrtleColors.primaryLight + '40',
+    color: TrtleColors.primaryDeep,
+    fontSize: 11,
+    fontWeight: '700',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 10,
+    overflow: 'hidden',
   },
   metricsGrid: {
     flexDirection: 'row',
     gap: 12,
     marginBottom: 12,
+  },
+  quickNavWrap: {
+    marginTop: 2,
+    marginBottom: 8,
+  },
+  quickNavRow: {
+    paddingHorizontal: 24,
+    gap: 10,
+  },
+  quickChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 14,
+    backgroundColor: TrtleColors.white,
+    borderWidth: 1,
+    borderColor: TrtleColors.inputBorder,
+  },
+  quickChipActive: {
+    backgroundColor: TrtleColors.primaryDark,
+    borderColor: TrtleColors.primaryDark,
+  },
+  quickChipText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: TrtleColors.primaryDeep,
+  },
+  quickChipTextActive: {
+    color: TrtleColors.white,
   },
   chartSection: {
     paddingHorizontal: 24,

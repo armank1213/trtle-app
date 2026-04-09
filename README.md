@@ -16,6 +16,26 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    npx expo start
    ```
 
+3. Start the control backend (needed for Water/Spray buttons)
+
+   ```bash
+   npm run backend:start
+   ```
+
+   By default, backend publishes to MQTT broker `192.168.68.90` on topic `PumpControl`.
+   Override with environment variables:
+
+   ```bash
+   MQTT_BROKER_ADDRESS=192.168.68.90 MQTT_CHANNEL=PumpControl npm run backend:start
+   ```
+
+   In the app, the API base URL defaults to `http://localhost:8000`.
+   Override via Expo public env var:
+
+   ```bash
+   EXPO_PUBLIC_BACKEND_URL=http://<your-machine-ip>:8000 npx expo start
+   ```
+
 In the output, you'll find options to open the app in a
 
 - [development build](https://docs.expo.dev/develop/development-builds/introduction/)

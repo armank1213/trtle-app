@@ -16,6 +16,7 @@ interface CameraFeedCardProps {
   lastSnapshot?: string;
   recentSnapshots?: string[];
   delay?: number;
+  showHeader?: boolean;
 }
 
 export function CameraFeedCard({
@@ -23,6 +24,7 @@ export function CameraFeedCard({
   lastSnapshot = 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800',
   recentSnapshots = [],
   delay = 0,
+  showHeader = true,
 }: CameraFeedCardProps) {
   const opacity = useSharedValue(0);
   const translateY = useSharedValue(20);
@@ -61,18 +63,20 @@ export function CameraFeedCard({
 
   return (
     <Animated.View style={[styles.container, containerAnimatedStyle]}>
-      <View style={styles.header}>
-        <View style={styles.titleContainer}>
-          <Ionicons name="videocam" size={20} color={TrtleColors.primaryDark} />
-          <Text style={styles.title}>Camera Feed</Text>
-        </View>
-        {isLive && (
-          <View style={styles.liveContainer}>
-            <Animated.View style={[styles.liveDot, liveIndicatorStyle]} />
-            <Text style={styles.liveText}>LIVE</Text>
+      {showHeader && (
+        <View style={styles.header}>
+          <View style={styles.titleContainer}>
+            <Ionicons name="videocam" size={20} color={TrtleColors.primaryDark} />
+            <Text style={styles.title}>Camera Feed</Text>
           </View>
-        )}
-      </View>
+          {isLive && (
+            <View style={styles.liveContainer}>
+              <Animated.View style={[styles.liveDot, liveIndicatorStyle]} />
+              <Text style={styles.liveText}>LIVE</Text>
+            </View>
+          )}
+        </View>
+      )}
 
       <Pressable style={styles.mainFeedContainer}>
         <Image source={{ uri: lastSnapshot }} style={styles.mainFeed} />

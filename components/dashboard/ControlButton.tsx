@@ -1,18 +1,18 @@
 import { TrtleColors } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
-import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, {
-    useAnimatedStyle,
-    useSharedValue,
-    withSpring
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring
 } from 'react-native-reanimated';
 
 type ControlType = 'water' | 'spray';
 
 interface ControlButtonProps {
   type: ControlType;
-  onConfirm: () => void;
+  onConfirm: () => void | Promise<void>;
   disabled?: boolean;
 }
 
@@ -59,13 +59,17 @@ export function ControlButton({ type, onConfirm, disabled = false }: ControlButt
     setShowModal(true);
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     setLoading(true);
-    setTimeout(() => {
+    try {
+      await onConfirm();
       setLoading(false);
       setShowModal(false);
-      onConfirm();
-    }, 1500);
+    } catch (error) {
+      setLoading(false);
+      const errorMessage = error instanceof Error ? error.message : 'Please try again.';
+      Alert.alert(`${config.label} failed`, errorMessage);
+    }
   };
 
   const animatedStyle = useAnimatedStyle(() => ({

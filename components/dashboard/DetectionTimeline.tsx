@@ -14,6 +14,7 @@ import Animated, {
 interface DetectionTimelineProps {
   detections: DetectionEvent[];
   delay?: number;
+  showHeader?: boolean;
 }
 
 function DetectionCard({ detection, index }: { detection: DetectionEvent; index: number }) {
@@ -71,7 +72,7 @@ function DetectionCard({ detection, index }: { detection: DetectionEvent; index:
   );
 }
 
-export function DetectionTimeline({ detections, delay = 0 }: DetectionTimelineProps) {
+export function DetectionTimeline({ detections, delay = 0, showHeader = true }: DetectionTimelineProps) {
   const opacity = useSharedValue(0);
   const translateY = useSharedValue(20);
 
@@ -87,12 +88,14 @@ export function DetectionTimeline({ detections, delay = 0 }: DetectionTimelinePr
 
   return (
     <Animated.View style={[styles.container, containerAnimatedStyle]}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Recent Detections</Text>
-        <Pressable>
-          <Text style={styles.seeAll}>See All</Text>
-        </Pressable>
-      </View>
+      {showHeader && (
+        <View style={styles.header}>
+          <Text style={styles.title}>Recent Detections</Text>
+          <Pressable>
+            <Text style={styles.seeAll}>See All</Text>
+          </Pressable>
+        </View>
+      )}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}

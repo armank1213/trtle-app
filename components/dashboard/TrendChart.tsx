@@ -16,6 +16,7 @@ interface TrendChartProps {
   color?: string;
   unit?: string;
   delay?: number;
+  showHeader?: boolean;
 }
 
 const { width } = Dimensions.get('window');
@@ -26,6 +27,7 @@ export function TrendChart({
   color = TrtleColors.primaryDark,
   unit = '%',
   delay = 0,
+  showHeader = true,
 }: TrendChartProps) {
   const opacity = useSharedValue(0);
   const translateY = useSharedValue(20);
@@ -58,13 +60,15 @@ export function TrendChart({
 
   return (
     <Animated.View style={[styles.container, animatedStyle]}>
-      <View style={styles.header}>
-        <Text style={styles.title}>{title}</Text>
-        <View style={styles.valueContainer}>
-          <Text style={[styles.currentValue, { color }]}>{currentValue.toFixed(1)}</Text>
-          <Text style={styles.unit}>{unit}</Text>
+      {showHeader && (
+        <View style={styles.header}>
+          <Text style={styles.title}>{title}</Text>
+          <View style={styles.valueContainer}>
+            <Text style={[styles.currentValue, { color }]}>{currentValue.toFixed(1)}</Text>
+            <Text style={styles.unit}>{unit}</Text>
+          </View>
         </View>
-      </View>
+      )}
       
       <View style={styles.statsRow}>
         <Text style={styles.statText}>Min: {minValue.toFixed(1)}{unit}</Text>

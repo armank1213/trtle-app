@@ -22,7 +22,7 @@ export default function TabLayout() {
         tabBarInactiveTintColor: TrtleColors.textMuted,
         headerShown: false,
         tabBarButton: HapticTab,
-        tabBarShowLabel: false,
+        tabBarShowLabel: true,
         tabBarStyle: {
           position: 'absolute',
           bottom: Platform.OS === 'ios' ? 28 : 16,
@@ -30,14 +30,25 @@ export default function TabLayout() {
           right: 24,
           backgroundColor: TrtleColors.white,
           borderRadius: 28,
-          height: 56,
+          height: 72,
           borderTopWidth: 0,
           shadowColor: TrtleColors.primaryDeep,
           shadowOffset: { width: 0, height: 8 },
           shadowOpacity: 0.15,
           shadowRadius: 16,
           elevation: 8,
-          paddingHorizontal: 20,
+          paddingHorizontal: 14,
+          paddingTop: 8,
+          paddingBottom: Platform.OS === 'ios' ? 10 : 8,
+        },
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: '700',
+          marginTop: 3,
+        },
+        tabBarItemStyle: {
+          borderRadius: 20,
+          marginHorizontal: 4,
         },
       }}>
       <Tabs.Screen
@@ -55,6 +66,15 @@ export default function TabLayout() {
           title: 'Analytics',
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon name={focused ? 'stats-chart' : 'stats-chart-outline'} color={color} focused={focused} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="trtle"
+        options={{
+          title: 'Trtle',
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon name={focused ? 'chatbubbles' : 'chatbubbles-outline'} color={color} focused={focused} />
           ),
         }}
       />
